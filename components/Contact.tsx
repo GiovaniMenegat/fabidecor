@@ -1,43 +1,73 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Mail, Phone } from "lucide-react";
+import { CheckCircle2, Mail, Phone } from "lucide-react";
 import { SiInstagram, SiWhatsapp } from "@icons-pack/react-simple-icons";
 import { SITE } from "@/lib/site-config";
 
-/**
- * There's no backend wired up yet, so submitting builds a mailto: link
- * pre-filled with the form values and hands off to the visitor's mail
- * client. Swap this for a real API route / form service later — see
- * AGENTS.md "Content status" for the todo.
- */
-function buildMailtoHref(values: { name: string; email: string; phone: string; message: string }) {
-  const subject = `Free quote request from ${values.name || "website visitor"}`;
-  const body = [
-    `Name: ${values.name}`,
-    `Email: ${values.email}`,
-    `Phone: ${values.phone}`,
-    "",
-    values.message,
-  ].join("\n");
-  const params = new URLSearchParams({ subject, body });
-  return `${SITE.emailHref}?${params.toString()}`;
-}
+type Status = "idle" | "submitting" | "success" | "error";
+
+// Web3Forms access key is meant to be public (it's rate-limited and
+// domain-scoped on their end, not a secret) — see AGENTS.md "Content status".
+const WEB3FORMS_ACCESS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY;
 
 export default function Contact() {
   const [values, setValues] = useState({ name: "", email: "", phone: "", message: "" });
+  const [status, setStatus] = useState<Status>("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleChange =
     (field: keyof typeof values) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setValues((prev) => ({ ...prev, [field]: event.target.value }));
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    window.location.href = buildMailtoHref(values);
+    setStatus("submitting");
+    setErrorMessage("");
+
+    if (!WEB3FORMS_ACCESS_KEY) {
+      setStatus("error");
+      setErrorMessage("Email sending isn't configured yet. Please call or WhatsApp us instead.");
+      return;
+    }
+
+    try {
+      // FormData (not a raw JSON body) so this is a CORS "simple request" —
+      // Web3Forms doesn't reliably handle the preflight a JSON body triggers.
+      const formData = new FormData();
+      formData.append("access_key", WEB3FORMS_ACCESS_KEY);
+      formData.append("subject", `New quote request from ${values.name}`);
+      formData.append("from_name", "FabiDecor Website");
+      formData.append("name", values.name);
+      formData.append("email", values.email);
+      formData.append("phone", values.phone);
+      formData.append("message", values.message);
+
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData,
+      }).catch(() => {
+        // Network/CORS-level failure — fetch throws a raw, unhelpful
+        // "Failed to fetch" TypeError here, so replace it with something a
+        // visitor can actually act on.
+        throw new Error("Couldn't reach the server. Please try WhatsApp or phone instead.");
+      });
+
+      const data = await response.json().catch(() => null);
+      if (!response.ok || !data?.success) {
+        throw new Error(data?.message || "Something went wrong. Please try again.");
+      }
+
+      setStatus("success");
+      setValues({ name: "", email: "", phone: "", message: "" });
+    } catch (error) {
+      setStatus("error");
+      setErrorMessage(error instanceof Error ? error.message : "Something went wrong. Please try again.");
+    }
   };
 
   const inputClassName =
-    "w-full rounded-sm border border-border px-4 py-3 text-base text-text placeholder:text-text-muted/70 focus:border-primary focus:outline-none";
+    "w-full rounded-sm border border-border px-4 py-3 text-base text-text placeholder:text-text-muted/70 focus:border-primary focus:outline-none disabled:opacity-60";
 
   return (
     <section
@@ -92,67 +122,92 @@ export default function Contact() {
         </div>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="flex w-full max-w-lg flex-col items-stretch gap-5 rounded-lg bg-white p-10 shadow-[0_24px_60px_rgba(0,0,0,0.28)]"
-      >
-        <h3 className="font-heading text-2xl font-bold text-text">Request a Free Quote</h3>
+      <div className="flex w-full max-w-lg flex-col items-stretch rounded-lg bg-white p-10 shadow-[0_24px_60px_rgba(0,0,0,0.28)]">
+        {status === "success" ? (
+          <div className="flex flex-col items-center gap-3 py-6 text-center">
+            <CheckCircle2 className="h-12 w-12 text-accent-green" />
+            <h3 className="font-heading text-2xl font-bold text-text">Message sent!</h3>
+            <p className="text-text-muted">
+              Thanks — we&apos;ll get back to you within a day with a free quote.
+            </p>
+            <button
+              type="button"
+              onClick={() => setStatus("idle")}
+              className="mt-2 font-semibold text-secondary hover:opacity-80"
+            >
+              Send another message
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex flex-col items-stretch gap-5">
+            <h3 className="font-heading text-2xl font-bold text-text">Request a Free Quote</h3>
 
-        <label className="flex flex-col items-stretch gap-1.5">
-          <span className="text-sm font-medium text-text-muted">Name</span>
-          <input
-            type="text"
-            required
-            placeholder="Your name"
-            value={values.name}
-            onChange={handleChange("name")}
-            className={inputClassName}
-          />
-        </label>
+            <label className="flex flex-col items-stretch gap-1.5">
+              <span className="text-sm font-medium text-text-muted">Name</span>
+              <input
+                type="text"
+                required
+                disabled={status === "submitting"}
+                placeholder="Your name"
+                value={values.name}
+                onChange={handleChange("name")}
+                className={inputClassName}
+              />
+            </label>
 
-        <div className="flex flex-col gap-4 sm:flex-row">
-          <label className="flex flex-1 flex-col items-stretch gap-1.5">
-            <span className="text-sm font-medium text-text-muted">Email</span>
-            <input
-              type="email"
-              required
-              placeholder="you@email.com"
-              value={values.email}
-              onChange={handleChange("email")}
-              className={inputClassName}
-            />
-          </label>
-          <label className="flex flex-1 flex-col items-stretch gap-1.5">
-            <span className="text-sm font-medium text-text-muted">Phone</span>
-            <input
-              type="tel"
-              placeholder="021 234 5678"
-              value={values.phone}
-              onChange={handleChange("phone")}
-              className={inputClassName}
-            />
-          </label>
-        </div>
+            <div className="flex flex-col gap-4 sm:flex-row">
+              <label className="flex flex-1 flex-col items-stretch gap-1.5">
+                <span className="text-sm font-medium text-text-muted">Email</span>
+                <input
+                  type="email"
+                  required
+                  disabled={status === "submitting"}
+                  placeholder="you@email.com"
+                  value={values.email}
+                  onChange={handleChange("email")}
+                  className={inputClassName}
+                />
+              </label>
+              <label className="flex flex-1 flex-col items-stretch gap-1.5">
+                <span className="text-sm font-medium text-text-muted">Phone</span>
+                <input
+                  type="tel"
+                  disabled={status === "submitting"}
+                  placeholder="021 234 5678"
+                  value={values.phone}
+                  onChange={handleChange("phone")}
+                  className={inputClassName}
+                />
+              </label>
+            </div>
 
-        <label className="flex flex-col items-stretch gap-1.5">
-          <span className="text-sm font-medium text-text-muted">Message</span>
-          <textarea
-            required
-            rows={4}
-            placeholder="Tell us a bit about the job — property type, rooms or areas, and timing."
-            value={values.message}
-            onChange={handleChange("message")}
-            className={`${inputClassName} resize-none`}
-          />
-        </label>
+            <label className="flex flex-col items-stretch gap-1.5">
+              <span className="text-sm font-medium text-text-muted">Message</span>
+              <textarea
+                required
+                rows={4}
+                disabled={status === "submitting"}
+                placeholder="Tell us a bit about the job — property type, rooms or areas, and timing."
+                value={values.message}
+                onChange={handleChange("message")}
+                className={`${inputClassName} resize-none`}
+              />
+            </label>
 
-        <button
-          type="submit"
-          className="mt-1 flex h-12 items-center justify-center rounded-sm bg-secondary font-semibold text-white transition-opacity hover:opacity-90"
-        >
-          Send Message
-        </button>
-      </form>
+            {status === "error" && (
+              <p className="text-sm font-medium text-accent-red">{errorMessage}</p>
+            )}
+
+            <button
+              type="submit"
+              disabled={status === "submitting"}
+              className="mt-1 flex h-12 items-center justify-center rounded-sm bg-secondary font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+            >
+              {status === "submitting" ? "Sending…" : "Send Message"}
+            </button>
+          </form>
+        )}
+      </div>
     </section>
   );
 }
