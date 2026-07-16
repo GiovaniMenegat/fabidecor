@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/tmp/claude-1000/-home-giovani-Documents-projects-fabidecor/03ed2e18-afa4-426a-82e2-551ad1ee081b/scratchpad/paper_call.sh get_font_family_info '{\"familyNames\":[\"Poppins\",\"Inter\",\"Nunito Sans\"]}')",
+      "Bash(/tmp/claude-1000/-home-giovani-Documents-projects-fabidecor/03ed2e18-afa4-426a-82e2-551ad1ee081b/scratchpad/paper_call.sh create_tokens '{\"tokens\":[ *)",
+      "Bash(/tmp/claude-1000/-home-giovani-Documents-projects-fabidecor/03ed2e18-afa4-426a-82e2-551ad1ee081b/scratchpad/paper_call.sh create_artboard '{ *)",
+      "Bash(/tmp/claude-1000/-home-giovani-Documents-projects-fabidecor/03ed2e18-afa4-426a-82e2-551ad1ee081b/scratchpad/paper_call.sh get_screenshot '{\"nodeId\":\"2-0\"}')",
+      "Bash(python3 -c ' *)",
+      "Bash(/tmp/claude-1000/-home-giovani-Documents-projects-fabidecor/03ed2e18-afa4-426a-82e2-551ad1ee081b/scratchpad/paper_call.sh get_computed_styles '{\"nodeIds\":[\"2-0\",\"1-0\"]}')",
+      "Bash(/tmp/claude-1000/-home-giovani-Documents-projects-fabidecor/03ed2e18-afa4-426a-82e2-551ad1ee081b/scratchpad/paper_call.sh get_tokens '{\"types\":[\"color\"]}')",
+      "Bash(/tmp/claude-1000/-home-giovani-Documents-projects-fabidecor/03ed2e18-afa4-426a-82e2-551ad1ee081b/scratchpad/paper_call.sh get_jsx '{\"nodeId\":\"2-0\",\"format\":\"inline-styles\"}')"
+    ]
+  }
+}

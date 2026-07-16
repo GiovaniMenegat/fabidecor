@@ -1,26 +1,47 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+ * FabiDecor design tokens.
+ * Source of truth: the Paper design (see AGENTS.md "Design System" section).
+ * Every color/font/radius below is also documented there — keep both in sync.
+ */
+@theme {
+  /* Brand */
+  --color-primary: #1b3b6f;
+  --color-primary-dark: #142c54;
+  --color-secondary: #c0128a;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Rainbow accents, drawn from the FabiDecor logo brush stroke */
+  --color-accent-red: #e8442e;
+  --color-accent-orange: #f7941d;
+  --color-accent-yellow: #c4d82e;
+  --color-accent-green: #1aa179;
+  --color-accent-teal: #2e8b9e;
+  --color-accent-purple: #7b3f98;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Brand-logo chip colors (official brand hex, not part of the site palette —
+     used only as the background behind that brand's own icon) */
+  --color-instagram: #ff0069;
+
+  /* Neutrals */
+  --color-bg: #ffffff;
+  --color-surface: #f7f8fa;
+  --color-text: #1f2430;
+  --color-text-muted: #6b7280;
+  --color-border: #e2e4e9;
+
+  /* Type */
+  --font-heading: var(--font-poppins);
+  --font-body: var(--font-inter);
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
 }
