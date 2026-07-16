@@ -70,7 +70,7 @@ export default function Gallery() {
         {GALLERY_ITEMS.map((caption) => (
           <div
             key={caption}
-            className="flex h-75 w-100 shrink-0 snap-start flex-col items-center justify-center gap-3 rounded-md bg-surface"
+            className="flex h-54 w-72 shrink-0 snap-start flex-col items-center justify-center gap-3 rounded-md bg-surface sm:h-75 sm:w-100"
           >
             <ImageIcon className="h-12 w-12 text-text-muted" />
             <span className="font-medium text-text-muted">{caption}</span>
