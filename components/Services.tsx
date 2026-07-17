@@ -69,16 +69,16 @@ export default function Services() {
       className="scroll-mt-20 flex w-full flex-col items-center gap-14 bg-accent-green px-6 py-20 md:px-16 md:py-28"
     >
       <div className="flex max-w-2xl flex-col items-center gap-4 text-center">
-        <span className="rounded-full bg-white/20 px-3.5 py-1.5 text-sm font-semibold text-white">
+        <span className="rounded-full bg-white/20 px-3.5 py-1.5 text-sm font-semibold text-black">
           What We Offer
         </span>
-        <h2 className="font-heading text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl">
+        <h2 className="font-heading text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-4xl">
           Full-service property care, all under one roof
         </h2>
-        <p className="text-lg leading-relaxed text-white/85">
+        <p className="text-lg leading-relaxed text-black">
           From a fresh coat of paint to a spotless driveway, FabiDecor covers
-          everything your property needs — all handled by one qualified, reliable
-          painter based right here in Auckland.
+          everything your property needs — all handled by one qualified,
+          reliable painter based right here in Auckland.
         </p>
       </div>
 
@@ -93,8 +93,12 @@ export default function Services() {
             >
               <service.icon className="h-7 w-7" />
             </span>
-            <h3 className="font-heading text-xl font-bold text-text">{service.title}</h3>
-            <p className="leading-relaxed text-text-muted">{service.description}</p>
+            <h3 className="font-heading text-xl font-bold text-text">
+              {service.title}
+            </h3>
+            <p className="leading-relaxed text-text-muted">
+              {service.description}
+            </p>
           </article>
         ))}
       </div>
