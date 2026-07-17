@@ -10,7 +10,7 @@ export default function Hero() {
         </span>
 
         <h1 className="font-heading text-4xl font-extrabold leading-tight tracking-tight text-text sm:text-5xl">
-          A fresh coat for your home, done right.
+          Professional House Painter in Auckland — A Fresh Coat, Done Right.
         </h1>
 
         <svg width="120" height="10" viewBox="0 0 120 10" className="text-accent-purple">
